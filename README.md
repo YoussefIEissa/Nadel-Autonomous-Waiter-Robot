@@ -67,19 +67,7 @@ The project was developed as a graduation project for the **College of Artificia
 - 🔊 Voice responses
 - 💻 ROS2-based modular software
 
----
 
-# 📸 Gallery
-
-| Robot | Navigation | Mapping |
-|--------|------------|----------|
-| ![](images/robot_front.jpg) | ![](images/navigation.jpg) | ![](images/map.png) |
-
-| Interface | Robot Side | Robot Rear |
-|------------|------------|------------|
-| ![](images/ui.png) | ![](images/robot_side.jpg) | ![](images/robot_back.jpg) |
-
----
 
 # 🏗 System Architecture
 
