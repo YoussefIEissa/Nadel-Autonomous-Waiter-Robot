@@ -1,0 +1,51 @@
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 20.0
+    use_sim_time: True  # Change to False for real robot
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 0.5
+      use_astar: true  # Changed to true for better paths in restaurant
+      allow_unknown: true  # Good for exploration
+      use_final_approach_orientation: false  # Robot can approach from any angle
+
+## Global costmap configuration
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 1.0
+      publish_frequency: 1.0
+      global_frame: map
+      robot_base_frame: base_link
+      use_sim_time: True  # Change to False for real robot
+      robot_radius: 0.12  # Changed from 0.09 to match local costmap (18cm robot + safety)
+      resolution: 0.05  # 5cm resolution (matches your map)
+      track_unknown_space: true
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
+      
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 12.0  # Increased from 3.0 (full A1M8 range)
+          raytrace_min_range: 0.15  # A1M8 minimum range
+          obstacle_max_range: 8.0  # Increased from 2.5
+          obstacle_min_range: 0.15  # A1M8 minimum range
+      
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 3.0
+        inflation_radius: 0.3  # Increased from 0.1 (safety buffer)
+      
+      always_send_full_costmap: True

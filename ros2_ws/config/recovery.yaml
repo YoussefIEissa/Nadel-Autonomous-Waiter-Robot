@@ -1,0 +1,32 @@
+recoveries_server:
+  ros__parameters:
+    costmap_topic: local_costmap/costmap_raw
+    footprint_topic: local_costmap/published_footprint
+    cycle_frequency: 10.0
+    recovery_plugins: ["spin", "backup", "wait"]
+    
+    # Spin recovery (rotate in place to find clear path)
+    spin:
+      plugin: "nav2_behaviors/Spin"
+      simulate_ahead_time: 2.0
+      max_rotational_vel: 1.0  # Gentle rotation (no spilling)
+      min_rotational_vel: 0.3  # Reduced from 0.4 for smoother start
+      rotational_acc_lim: 1.5  # Reduced from 3.2 for smooth acceleration
+      
+    # Backup recovery (reverse away from obstacle)
+    backup:
+      plugin: "nav2_behaviors/BackUp"
+      simulate_ahead_time: 2.0
+      backup_speed: 0.05  # Very slow backup (5cm/s) for safety
+      backup_timeout: 10.0  # Max 10 seconds to complete backup
+      
+    # Wait recovery (pause for dynamic obstacles to move)
+    wait:
+      plugin: "nav2_behaviors/Wait"
+      wait_duration: 5  # Wait 5 seconds for people/obstacles to pass
+    
+    # Frame configuration
+    global_frame: odom
+    robot_base_frame: base_link
+    transform_timeout: 0.1
+    use_sim_time: false  # Change to false for real robot

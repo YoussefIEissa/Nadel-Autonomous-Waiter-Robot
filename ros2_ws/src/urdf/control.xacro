@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- Real robot hardware interface for Arduino-controlled MY-775 motors -->
+    <ros2_control name="DiffBot" type="system">
+        <hardware>
+            <plugin>diffdrive_arduino/DiffDriveArduinoHardware</plugin> 
+            <param name="left_wheel_name">left_wheel_joint</param>
+            <param name="right_wheel_name">right_wheel_joint</param>
+            <param name="loop_rate">30</param>  <!-- Match your controller update rate -->
+            <param name="device">/dev/ttyACM0</param>  <!-- Arduino USB port - may change to /dev/ttyUSB0 -->
+            <param name="baud_rate">57600</param>  <!-- Serial communication speed -->
+            <param name="timeout">1000</param>  <!-- Milliseconds to wait for Arduino response -->
+            <param name="enc_counts_per_rev">92</param>  <!-- MY-775 encoder: 7 PPR * 13.16 gear ratio ≈ 92 counts per wheel revolution -->
+        </hardware>
+        
+        <joint name="left_wheel_joint">
+            <command_interface name="velocity">
+                <param name="min">-10</param>  <!-- Maximum reverse velocity in rad/s -->
+                <param name="max">10</param>   <!-- Maximum forward velocity in rad/s -->
+            </command_interface>
+            <state_interface name="velocity"/>  <!-- Current wheel velocity from encoder -->
+            <state_interface name="position"/>  <!-- Current wheel position from encoder -->
+        </joint>
+        
+        <joint name="right_wheel_joint">
+            <command_interface name="velocity">
+                <param name="min">-10</param>  <!-- Maximum reverse velocity in rad/s -->
+                <param name="max">10</param>   <!-- Maximum forward velocity in rad/s -->
+            </command_interface>
+            <state_interface name="velocity"/>  <!-- Current wheel velocity from encoder -->
+            <state_interface name="position"/>  <!-- Current wheel position from encoder -->
+        </joint>
+    </ros2_control>
+
+</robot>

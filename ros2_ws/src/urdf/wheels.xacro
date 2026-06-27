@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- Wheel Link Macro -->
+    <xacro:macro name="wheel_link" params="link_name">
+        <link name="${link_name}">
+            <!-- Visual representation -->
+            <visual>
+                <geometry>
+                    <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+                </geometry>
+                <material name="red"/>
+            </visual>
+            
+            <!-- Collision geometry - IMPORTANT: Use cylinder, not sphere! -->
+            <collision>
+                <geometry>
+                    <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>  <!-- Changed from sphere -->
+                </geometry>
+            </collision>
+            
+            <!-- Inertial properties for physics simulation -->
+            <xacro:inertial_cylinder mass="${wheel_mass}" length="${wheel_thickness}" radius="${wheel_radius}">
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:inertial_cylinder>
+        </link>
+        
+        <!-- Gazebo-specific properties for realistic wheel physics -->
+        <gazebo reference="${link_name}">
+            <material>Gazebo/Black</material>  <!-- Visual appearance in Gazebo -->
+            
+            <!-- Friction coefficients for realistic wheel behavior -->
+            <mu1>1.0</mu1>  <!-- Friction coefficient in primary direction (forward/backward) -->
+            <mu2>1.0</mu2>  <!-- Friction coefficient in secondary direction (sideways) -->
+            <kp>1000000.0</kp>  <!-- Contact stiffness (prevents sinking into ground) -->
+            <kd>100.0</kd>  <!-- Contact damping (reduces bouncing) -->
+            <minDepth>0.001</minDepth>  <!-- Minimum penetration before contact (prevents jitter) -->
+            <maxVel>1.0</maxVel>  <!-- Maximum contact correction velocity -->
+            
+            <!-- Surface properties -->
+            <fdir1>1 0 0</fdir1>  <!-- Primary friction direction (longitudinal) -->
+        </gazebo>
+    </xacro:macro>
+
+    <!-- Wheel Joint Macro -->
+    <xacro:macro name="wheel_joint" params="joint_name wheel_name y_offset">
+        <joint name="${joint_name}" type="continuous">
+            <origin xyz="0 ${y_offset} 0" rpy="${-pi/2} 0.0 0.0"/>  <!-- Rotates wheel to correct orientation -->
+            <parent link="base_link"/>
+            <child link="${wheel_name}"/>
+            <axis xyz="0.0 0.0 1"/>  <!-- Rotation axis (Z in wheel's rotated frame = Y in base_link) -->
+            
+            <!-- Joint dynamics for smoother simulation -->
+            <dynamics damping="0.1" friction="0.1"/>  <!-- Adds realistic resistance -->
+            
+            <!-- Joint limits (continuous = unlimited rotation) -->
+            <limit effort="30" velocity="20.0"/>  <!-- Max torque: 30 Nm, Max velocity: 20 rad/s -->
+        </joint>
+    </xacro:macro>
+
+    <!-- Left Wheel Link -->
+    <xacro:wheel_link link_name="left_wheel_link"/>
+
+    <!-- Left Wheel Joint -->
+    <xacro:wheel_joint joint_name="left_wheel_joint" wheel_name="left_wheel_link" y_offset="${wheel_offset_y}"/>
+
+    <!-- Right Wheel Link -->
+    <xacro:wheel_link link_name="right_wheel_link"/>
+
+    <!-- Right Wheel Joint -->
+    <xacro:wheel_joint joint_name="right_wheel_joint" wheel_name="right_wheel_link" y_offset="${-wheel_offset_y}"/>
+
+</robot>

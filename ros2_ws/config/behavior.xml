@@ -1,0 +1,42 @@
+<!--
+  Behavior Tree for Waiter Robot Navigation (ROS 2 Humble)
+  - Dynamic replanning at 1 Hz
+  - Recovery behaviors for obstacles and getting stuck
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+
+      <!-- ===== Dynamic Replanning and Path Following ===== -->
+      <PipelineSequence name="NavigateWithReplanning">
+
+        <!-- Replan path every 1 Hz -->
+        <RateController hz="1.0">
+          <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+        </RateController>
+
+        <!-- Follow current global path -->
+        <FollowPath path="{path}" controller_id="FollowPath"/>
+
+        <!-- Verify goal reached -->
+        <GoalReached/>
+
+      </PipelineSequence>
+
+      <!-- ===== Recovery Sequence when failure occurs ===== -->
+      <RoundRobin name="RecoveryActions">
+        <Sequence name="ClearingCostmaps">
+          <ClearEntireCostmap name="ClearLocalCostmap"
+                              service_name="local_costmap/clear_entirely_local_costmap"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </Sequence>
+        <Spin spin_dist="1.57" time_allowance="10"/>
+        <BackUp backup_dist="0.30" backup_speed="0.05" time_allowance="10"/>
+        <Wait wait_duration="5"/>
+        <Spin spin_dist="-1.57" time_allowance="10"/>
+      </RoundRobin>
+
+    </RecoveryNode>
+  </BehaviorTree>
+</root>

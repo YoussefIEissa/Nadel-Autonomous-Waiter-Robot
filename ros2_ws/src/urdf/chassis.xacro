@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- Chassis Link - Main body of the waiter robot -->
+    <link name="chassis_link">
+        
+        <!-- Visual representation -->
+        <visual>
+            <geometry>
+                <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+            </geometry>
+            <origin xyz="${chassis_length/2} 0.0 ${chassis_height/2}"/>
+            <material name="green"/>
+        </visual>
+
+        <!-- Collision geometry (for physics and obstacle detection) -->
+        <collision>
+            <geometry>
+                <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+            </geometry>
+            <origin xyz="${chassis_length/2} 0.0 ${chassis_height/2}"/>
+        </collision>
+
+        <!-- Inertial properties for physics simulation -->
+        <xacro:inertial_box mass="${chassis_mass}" 
+                            x="${chassis_length}" 
+                            y="${chassis_width}" 
+                            z="${chassis_height}">
+            <origin xyz="${chassis_length/2} 0 ${chassis_height/2}" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link> 
+
+    <!-- Chassis Joint - Connects chassis to base_link -->
+    <joint name="chassis_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="chassis_link"/>
+        <origin xyz="-${wheel_offset_x} 0.0 0.0"/>  <!-- Positions chassis relative to wheel axle -->
+    </joint>
+
+    <!-- Gazebo-specific properties -->
+    <gazebo reference="chassis_link">
+        <material>Gazebo/Grey</material>  <!-- Visual appearance -->
+        
+        <!-- Surface contact properties -->
+        <mu1>0.1</mu1>  <!-- Low friction - chassis shouldn't drag on ground -->
+        <mu2>0.1</mu2>
+        <kp>1000000.0</kp>  <!-- Contact stiffness -->
+        <kd>100.0</kd>  <!-- Contact damping -->
+        
+        <!-- Make chassis slightly reflective for better visualization -->
+        <gravity>true</gravity>
+        <self_collide>false</self_collide>  <!-- Chassis won't collide with itself -->
+    </gazebo>
+
+</robot>

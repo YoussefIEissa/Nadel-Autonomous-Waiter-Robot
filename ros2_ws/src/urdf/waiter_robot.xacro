@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="waiter_robot">
+
+    <!-- Include all component files -->
+    <xacro:include filename="properties.xacro"/>
+    <xacro:include filename="inertial_macros.xacro"/>
+    <xacro:include filename="chassis.xacro"/>
+    <xacro:include filename="wheels.xacro"/>
+    <xacro:include filename="caster_wheel.xacro"/>
+    <xacro:include filename="lidar.xacro"/>
+    
+    <!-- Argument to switch between simulation and real hardware -->
+    <xacro:arg name="use_sim" default="false"/>
+    
+    <!-- Include appropriate control interface based on use_sim argument -->
+    <xacro:if value="$(arg use_sim)">
+        <xacro:include filename="gazebo_control.xacro"/>  <!-- For Gazebo Fortress simulation -->
+    </xacro:if>
+    
+    <xacro:unless value="$(arg use_sim)">
+        <xacro:include filename="control.xacro"/>  <!-- For real robot with Arduino -->
+    </xacro:unless>
+
+    <!-- Base Link - Main reference frame for the robot -->
+    <link name="base_link"/>
+
+    <!-- Base Footprint Link - Projection of robot on the ground (for navigation) -->
+    <link name="base_footprint"/>
+    
+    <!-- Joint connecting base_link to base_footprint -->
+    <!-- IMPORTANT: This should place base_footprint on the ground, base_link at wheel axle height -->
+    <joint name="base_footprint_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="base_footprint"/>
+        <origin xyz="0 0 -0.0325" rpy="0 0 0"/>  <!-- Offset = -wheel_radius to put footprint on ground -->
+    </joint>
+    
+</robot>
